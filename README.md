@@ -2,7 +2,7 @@
 A REST API for managing invoices, customers, and payments. Built with Django, Django Rest Framework, and PostgreSQL, drawing on real invoicing workflows from my background in financial administration.
 
 ## Why/Motivation
-during my time at my previous employer, through the daily exposure to SalesForce and SAP, processes like creating credit notes, partial payments, due dates, monthly closings, and many other aspects, have taught me how an invoice can have many different statuses, instead of just 'paid' or 'not paid'.
+During my time at my previous employer, through the daily exposure to SalesForce and SAP, processes like creating credit notes, partial payments, due dates, monthly closings, and many other aspects, have taught me how an invoice can have many different statuses, instead of just 'paid' or 'not paid'.
 
 ## Features
 - Full CRUD for Customers, Invoices, Line Items
@@ -35,7 +35,7 @@ django-admin startproject invoiceproject .
 ```bash
 python manage.py startapp invoices
 ```
-6.	In setting.py, add the new file 'invoices' and 'rest_framework' under installed_apps
+6.	In settings.py, add the new file 'invoices' and 'rest_framework' under installed_apps
 7.	Install PostgresSQL and set a password
 8.	Open pgAdmin with the same password
 9.	Create a database called 'invoicedb'
@@ -56,7 +56,7 @@ DB_PASSWORD=<your_actual_password>
 ```bash
 python manage.py migrate
 ```
-21. Go to invoice/models.py
+21. Go to invoices/models.py
 22. Create class Customer, Invoice, and LineItem:
 ```python
 class Customer(models.Model):
@@ -133,7 +133,7 @@ class LineItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'invoice', 'description', 'unit_price', 'quantity']
 ```
 30. SAVE
-31. Open invoices/views.py and incluide the following code:
+31. Open invoices/views.py and include the following code:
 ```python
 from rest_framework import viewsets
 from .models import Customer, Invoice, LineItem
@@ -179,7 +179,7 @@ urlpatterns = [
 ]
 ```
 36. SAVE
-37. in invoiceproject/settings.py, find INSTALLED_APPS  and include 'rest_framework.authtoken' in the list.
+37. In invoiceproject/settings.py, find INSTALLED_APPS  and include 'rest_framework.authtoken' in the list.
 38. SAVE
 39. Migrate
 ```bash
@@ -198,6 +198,27 @@ python manage.py runserver
 ```
 
 The server should now be running at `http://127.0.0.1:8000/`. Visit `http://127.0.0.1:8000/admin/` to log in with your superuser account, or `http://127.0.0.1:8000/api/v1/customers/` to view the API directly.
+
+## API Endpoints
+
+All endpoints are prefixed with `/api/v1/`. Read access (GET) is open to everyone; write actions require a valid authentication token (see [Authentication](#authentication)).
+
+| Method | Endpoint                  | Description                     |
+|--------|----------------------------|----------------------------------|
+| GET    | `/api/v1/customers/`       | List all customers              |
+| POST   | `/api/v1/customers/`       | Create a new customer           |
+| GET    | `/api/v1/customers/{id}/`  | Retrieve a specific customer    |
+| PUT    | `/api/v1/customers/{id}/`  | Update a specific customer      |
+| DELETE | `/api/v1/customers/{id}/`  | Delete a specific customer      |
+
+The `invoices/` and `lineitems/` endpoints follow the same pattern (GET, POST, GET `/{id}/`, PUT `/{id}/`, DELETE `/{id}/`):
+
+- `/api/v1/invoices/`
+- `/api/v1/lineitems/`
+
+| Method | Endpoint              | Description                          |
+|--------|------------------------|---------------------------------------|
+| POST   | `/api/token-auth/`     | Obtain an authentication token        |
 
 ## Authentication
 Read access (GET) is open to everyone. All other actions — creating, editing, or deleting — require authentication via a token.
