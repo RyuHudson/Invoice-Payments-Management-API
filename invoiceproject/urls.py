@@ -23,4 +23,3 @@ urlpatterns = [
     path('api/v1/', include('invoices.urls')),
     path('api/token-auth/', obtain_auth_token)
 ]
-
