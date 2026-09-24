@@ -22,6 +22,15 @@ class Invoice(models.Model):
     invoice_date = models.DateField()
     due_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    
+    @property
+    def total(self):
+        line_items = self.line_items.all()
+        items = []
+        for line in line_items:
+            total_item = line.unit_price * line.quantity
+            items.append(total_item)
+        return sum(items)
 
     def __str__(self):
         return self.invoice_number

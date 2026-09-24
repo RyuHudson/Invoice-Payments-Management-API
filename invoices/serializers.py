@@ -7,9 +7,14 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'email', 'address']
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    total = serializers.SerializerMethodField()
+
     class Meta:
         model = Invoice
-        fields = ['id', 'invoice_number', 'customer', 'invoice_date', 'due_date', 'status']
+        fields = ['id', 'invoice_number', 'customer', 'invoice_date', 'due_date', 'status', 'total']
+
+    def get_total(self, obj):
+        return obj.total
 
 class LineItemSerializer(serializers.ModelSerializer):
     class Meta:
