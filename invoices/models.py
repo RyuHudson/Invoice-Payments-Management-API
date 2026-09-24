@@ -6,6 +6,12 @@ class Customer(models.Model):
     email = models.EmailField()
     address = models.TextField(blank=True)
 
+    @property
+    def balance(self):
+        total_invoiced = sum(invoice.total for invoice in self.invoices.all())
+        total_paid = sum(payment.amount for payment in self.payments.all())
+        return total_invoiced - total_paid
+
     def __str__(self):
         return self.name
 
@@ -43,3 +49,9 @@ class LineItem(models.Model):
 
     def __str__(self):
         return f"{self.description} ({self.invoice.invoice_number})"
+
+class Payment(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name= 'payments')
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name= 'payments', null=True, blank=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    payment_date = models.DateField()
