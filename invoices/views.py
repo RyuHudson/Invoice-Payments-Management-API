@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Customer, Invoice, LineItem
-from .serializers import CustomerSerializer, InvoiceSerializer, LineItemSerializer
+from .models import Customer, Invoice, LineItem, Payment
+from .serializers import CustomerSerializer, InvoiceSerializer, LineItemSerializer, PaymentSerializer
 
 # Create your views here.
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -14,3 +14,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 class LineItemViewSet(viewsets.ModelViewSet):
     queryset = LineItem.objects.all()
     serializer_class = LineItemSerializer
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer

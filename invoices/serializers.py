@@ -32,3 +32,9 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = ['customer', 'customer_id' 'invoice', 'invoice_id', 'amount', 'payment_date']
 
+    def validate(self, data):
+        invoice = data.get('invoice')
+        customer = data.get('customer', getattr(self.instance, 'customer', None))
+        if invoice and customer and invoice.customer_id != customer.id:
+            raise serializers.ValidationError("Invoice must belong to the same customer as the payment.")
+        return data
