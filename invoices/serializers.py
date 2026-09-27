@@ -2,9 +2,11 @@ from .models import Customer, Invoice, LineItem, Payment
 from rest_framework import serializers
 
 class CustomerSerializer(serializers.ModelSerializer):
+    balance = serializers.ReadOnlyField()
+
     class Meta:
         model = Customer
-        fields = ['id', 'name', 'email', 'address']
+        fields = ['id', 'name', 'email', 'address', 'balance']
 
 class InvoiceSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only= True)
@@ -30,7 +32,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     invoice_id = serializers.PrimaryKeyRelatedField(queryset=Invoice.objects.all(), source='invoice', write_only=True, required=False, allow_null=True)
     class Meta:
         model = Payment
-        fields = ['customer', 'customer_id' 'invoice', 'invoice_id', 'amount', 'payment_date']
+        fields = ['customer', 'customer_id', 'invoice', 'invoice_id', 'amount', 'payment_date']
 
     def validate(self, data):
         invoice = data.get('invoice')
