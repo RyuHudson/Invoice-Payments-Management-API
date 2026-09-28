@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 # Create your models here.
 class Customer(models.Model):
@@ -18,9 +19,7 @@ class Customer(models.Model):
 class Invoice(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
-        ('sent', 'Sent'),
-        ('paid', 'Paid'),
-        ('overdue', 'Overdue'),
+        ('sent', 'Sent')
     ]
 
     invoice_number = models.CharField(max_length=50, unique=True)
@@ -37,6 +36,20 @@ class Invoice(models.Model):
             total_item = line.unit_price * line.quantity
             items.append(total_item)
         return sum(items)
+    @property
+    def outstanding_amount(self):
+        total_paid = sum(payment.amount for payment in self.invoices.all())
+        return self.total - total_paid
+
+    @property
+    def is_paid(self):
+        return self.outstanding_amount <= 0
+
+    @property
+    def is_overdue(self):
+        if self.due_date is None:
+            return False
+        return self.due_date <= date.today() and not self.is_paid
 
     def __str__(self):
         return self.invoice_number

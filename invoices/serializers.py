@@ -12,10 +12,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only= True)
     customer_id = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), source='customer', write_only=True)
     total = serializers.SerializerMethodField()
+    outstanding_amount = serializers.ReadOnlyField()
+    is_paid = serializers.ReadOnlyField()
+    is_overdue = serializers.ReadOnlyField()
 
     class Meta:
         model = Invoice
-        fields = ['id', 'invoice_number', 'customer', 'customer_id', 'invoice_date', 'due_date', 'status', 'total']
+        fields = ['id', 'invoice_number', 'outstanding_amount', 'is_paid', 'is_overdue', 'customer', 'customer_id', 'invoice_date', 'due_date', 'status', 'total']
 
     def get_total(self, obj):
         return obj.total
