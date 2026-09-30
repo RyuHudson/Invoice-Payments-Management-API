@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Customer(models.Model):
@@ -38,7 +39,7 @@ class Invoice(models.Model):
         return sum(items)
     @property
     def outstanding_amount(self):
-        total_paid = sum(payment.amount for payment in self.invoices.all())
+        total_paid = sum(payment.amount for payment in self.payments.all())
         return self.total - total_paid
 
     @property
@@ -57,8 +58,8 @@ class Invoice(models.Model):
 class LineItem(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete= models.CASCADE, related_name='line_items')
     description = models.CharField(max_length=225)
-    unit_price = models.DecimalField(max_digits=10, decimal_places= 2)
-    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
 
     def __str__(self):
         return f"{self.description} ({self.invoice.invoice_number})"
@@ -68,3 +69,4 @@ class Payment(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name= 'payments', null=True, blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     payment_date = models.DateField()
+
