@@ -71,3 +71,4 @@ def test_invoice_is_overdue():
     LineItem.objects.create(invoice=invoice2, description="GAdget", unit_price="5.00", quantity=3)
 
     assert invoice2.is_overdue is True
+
