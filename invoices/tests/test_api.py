@@ -565,3 +565,86 @@ def test_put_payment_nonexistent_id_returns_404():
     response = client.put(f'/api/v1/payments/{payment_id}/', {'invoice_id': invoice.id, 'customer_id': customer.id, 'amount': '110', 'payment_date': date.today()})
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_token_auth_with_valid_credentials_returns_token():
+    User.objects.create_user(username='Gigi Buffon', password='testpass123')
+    client = APIClient()
+
+    response = client.post('/api/token-auth/', {'username': 'Gigi Buffon', 'password': 'testpass123'})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert 'token' in response.data
+
+@pytest.mark.django_db
+def test_token_auth_without_valid_credentials_returns_no_token():
+    User.objects.create_user(username='Gigi Buffon', password='testpass123')
+    client = APIClient()
+
+    response = client.post('/api/token-auth/', {'username': 'Gigi Buffon', 'password': 'testpass456'})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'token' not in response.data
+
+@pytest.mark.django_db
+def test_list_customers_returns_created_customers():
+    customer1 = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    customer2 = Customer.objects.create(name="Mischelin Corp", email="mischelincorp@example.com")
+
+    client = APIClient()
+
+    response = client.get('/api/v1/customers/')
+
+    print(response.data)
+    assert response.status_code == status.HTTP_200_OK
+
+@pytest.mark.django_db
+def test_list_invoices_returns_created_invoices():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice1 = Invoice.objects.create(invoice_number='1', customer_id=customer.id, invoice_date=date.today())
+    invoice2 = Invoice.objects.create(invoice_number='2', customer_id=customer.id, invoice_date=date.today())
+
+    client = APIClient()
+    response = client.get('/api/v1/invoices/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+    invoice_numbers = [invoice['invoice_number'] for invoice in response.data]
+    assert '1' in invoice_numbers
+    assert '2' in invoice_numbers
+
+
+@pytest.mark.django_db
+def test_list_lineitems_returns_created_lineitems():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='1', customer_id=customer.id, invoice_date=date.today())
+    LineItem.objects.create(invoice_id=invoice.id, description='widget', unit_price='10.00', quantity='1')
+    LineItem.objects.create(invoice_id=invoice.id, description='gadget', unit_price='20.00', quantity='2')
+
+    client = APIClient()
+    response = client.get('/api/v1/lineitems/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+    descriptions = [item['description'] for item in response.data]
+    assert 'widget' in descriptions
+    assert 'gadget' in descriptions
+
+
+@pytest.mark.django_db
+def test_list_payments_returns_created_payments():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    Payment.objects.create(customer_id=customer.id, amount='50.00', payment_date=date.today())
+    Payment.objects.create(customer_id=customer.id, amount='75.00', payment_date=date.today())
+
+    client = APIClient()
+    response = client.get('/api/v1/payments/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+    amounts = [payment['amount'] for payment in response.data]
+    assert '50.00' in amounts
+    assert '75.00' in amounts
