@@ -384,3 +384,184 @@ def test_delete_payment_without_auth_is_rejected():
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert Payment.objects.filter(id=payment.id).exists()
+
+@pytest.mark.django_db
+def test_delete_customer_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    customer_id = customer.id
+    customer.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.delete(f'/api/v1/customers/{customer_id}/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_patch_customer_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    customer_id = customer.id
+    customer.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.patch(f'/api/v1/customers/{customer_id}/', {'name': 'acne Corp', 'email': 'acne@example.com'})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_put_customer_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    customer_id = customer.id
+    customer.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.put(f'/api/v1/customers/{customer_id}/', {'name': 'Acne Corp', 'email': 'acne@example.com'})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_delete_invoice_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    invoice_id = invoice.id
+    invoice.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.delete(f'/api/v1/invoices/{invoice_id}/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_patch_invoice_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    invoice_id = invoice.id
+    invoice.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.patch(f'/api/v1/invoices/{invoice_id}/', {'invoice_number': '4'})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_put_invoice_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    invoice_id = invoice.id
+    invoice.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.put(f'/api/v1/invoices/{invoice_id}/', {'invoice_number': '4', 'customer_id': customer.id, 'invoice_date': date.today()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_delete_lineitem_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    line_item = LineItem.objects.create(invoice_id=invoice.id, unit_price='15.00', quantity='2')
+    line_item_id = line_item.id
+    line_item.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.delete(f'/api/v1/lineitems/{line_item_id}/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_patch_lineitem_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    line_item = LineItem.objects.create(invoice_id=invoice.id, unit_price='15.00', quantity='2')
+    line_item_id = line_item.id
+    line_item.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.patch(f'/api/v1/lineitems/{line_item_id}/', {'quantity': '5'})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_put_lineitem_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    line_item = LineItem.objects.create(invoice_id=invoice.id, unit_price='15.00', quantity='2')
+    line_item_id = line_item.id
+    line_item.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.put(f'/api/v1/lineitems/{line_item_id}/', {'invoice': invoice.id, 'description': 'widget', 'unit_price': '20.00', 'quantity': '3'})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_delete_payment_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    payment = Payment.objects.create(customer_id=customer.id, amount='120.00', payment_date=date.today())
+    payment_id = payment.id
+    payment.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.delete(f'/api/v1/payments/{payment_id}/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_patch_payment_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    payment = Payment.objects.create(customer_id=customer.id, amount='120.00', payment_date=date.today())
+    payment_id = payment.id
+    payment.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.patch(f'/api/v1/payments/{payment_id}/', {'amount': '150.00'})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+def test_put_payment_nonexistent_id_returns_404():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(invoice_number='3', customer_id=customer.id, invoice_date=date.today())
+    payment = Payment.objects.create(customer_id=customer.id, invoice_id=invoice.id, amount='120.00', payment_date=date.today())
+    payment_id = payment.id
+    payment.delete()
+
+    user = User.objects.create_user(username='Gigi_Buffon', password='testpass123')
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.put(f'/api/v1/payments/{payment_id}/', {'invoice_id': invoice.id, 'customer_id': customer.id, 'amount': '110', 'payment_date': date.today()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
