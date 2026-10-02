@@ -1,16 +1,20 @@
 from .models import Customer, Invoice, LineItem, Payment
 from rest_framework import serializers
 
+
 class CustomerSerializer(serializers.ModelSerializer):
     balance = serializers.ReadOnlyField()
 
     class Meta:
         model = Customer
-        fields = ['id', 'name', 'email', 'address', 'balance']
+        fields = ["id", "name", "email", "address", "balance"]
+
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer(read_only= True)
-    customer_id = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), source='customer', write_only=True)
+    customer = CustomerSerializer(read_only=True)
+    customer_id = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(), source="customer", write_only=True
+    )
     total = serializers.SerializerMethodField()
     outstanding_amount = serializers.ReadOnlyField()
     is_paid = serializers.ReadOnlyField()
@@ -18,28 +22,60 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ['id', 'invoice_number', 'outstanding_amount', 'is_paid', 'is_overdue', 'customer', 'customer_id', 'invoice_date', 'due_date', 'status', 'total']
+        fields = [
+            "id",
+            "invoice_number",
+            "outstanding_amount",
+            "is_paid",
+            "is_overdue",
+            "customer",
+            "customer_id",
+            "invoice_date",
+            "due_date",
+            "status",
+            "total",
+        ]
 
     def get_total(self, obj):
         return obj.total
 
+
 class LineItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineItem
-        fields = ['id', 'invoice', 'description', 'unit_price', 'quantity']
+        fields = ["id", "invoice", "description", "unit_price", "quantity"]
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
-    customer_id = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), source='customer', write_only=True)
+    customer_id = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(), source="customer", write_only=True
+    )
     invoice = InvoiceSerializer(read_only=True)
-    invoice_id = serializers.PrimaryKeyRelatedField(queryset=Invoice.objects.all(), source='invoice', write_only=True, required=False, allow_null=True)
+    invoice_id = serializers.PrimaryKeyRelatedField(
+        queryset=Invoice.objects.all(),
+        source="invoice",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+
     class Meta:
         model = Payment
-        fields = ['customer', 'customer_id', 'invoice', 'invoice_id', 'amount', 'payment_date']
+        fields = [
+            "customer",
+            "customer_id",
+            "invoice",
+            "invoice_id",
+            "amount",
+            "payment_date",
+        ]
 
     def validate(self, data):
-        invoice = data.get('invoice')
-        customer = data.get('customer', getattr(self.instance, 'customer', None))
+        invoice = data.get("invoice")
+        customer = data.get("customer", getattr(self.instance, "customer", None))
         if invoice and customer and invoice.customer_id != customer.id:
-            raise serializers.ValidationError("Invoice must belong to the same customer as the payment.")
+            raise serializers.ValidationError(
+                "Invoice must belong to the same customer as the payment."
+            )
         return data

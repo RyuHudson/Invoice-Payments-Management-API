@@ -3,9 +3,9 @@ from .views import CustomerViewSet, InvoiceViewSet, LineItemViewSet, PaymentView
 
 router = DefaultRouter()
 
-router.register('customers', CustomerViewSet)
-router.register('invoices', InvoiceViewSet)
-router.register('lineitems', LineItemViewSet)
-router.register('payments', PaymentViewSet)
+router.register("customers", CustomerViewSet)
+router.register("invoices", InvoiceViewSet)
+router.register("lineitems", LineItemViewSet)
+router.register("payments", PaymentViewSet)
 
 urlpatterns = router.urls
