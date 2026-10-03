@@ -22,13 +22,22 @@ class Customer(models.Model):
 class Invoice(models.Model):
     STATUS_CHOICES = [("draft", "Draft"), ("sent", "Sent")]
 
-    invoice_number = models.CharField(max_length=50, unique=True)
+    invoice_number = models.CharField(max_length=50, unique=True, blank=True)
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="invoices"
     )
     invoice_date = models.DateField()
     due_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+
+    def save(self, *args, **kwargs):
+        if not self.invoice_number:
+            last_invoice = Invoice.objects.order_by("-id").first()
+            if last_invoice:
+                self.invoice_number=str(int(last_invoice.invoice_number)+ 1)
+            else:
+                self.invoice_number= "1"
+        super().save(*args, **kwargs)
 
     @property
     def total(self):
@@ -85,3 +94,4 @@ class Payment(models.Model):
     )
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     payment_date = models.DateField()
+
