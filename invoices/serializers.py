@@ -9,10 +9,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ["id", "name", "email", "address", "balance"]
 
+
 class LineItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineItem
-        fields = ["id", "description", "unit_price", "quantity"]
+        fields = ["id", "invoice", "description", "unit_price", "quantity"]
+        extra_kwargs = {"invoice": {"required": False}}
+
 
 class InvoiceSerializer(serializers.ModelSerializer):
     invoice_number = serializers.ReadOnlyField()
@@ -24,7 +27,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     outstanding_amount = serializers.ReadOnlyField()
     is_paid = serializers.ReadOnlyField()
     is_overdue = serializers.ReadOnlyField()
-    line_items = LineItemSerializer(many=True)
+    line_items = LineItemSerializer(many=True, required=False)
 
     class Meta:
         model = Invoice
@@ -47,11 +50,15 @@ class InvoiceSerializer(serializers.ModelSerializer):
         return obj.total
 
     def create(self, validated_data):
-        line_items_data = validated_data.pop("line_items")
+        line_items_data = validated_data.pop("line_items", [])
         invoice = Invoice.objects.create(**validated_data)
 
         for item_data in line_items_data:
+            item_data.pop("invoice", None)
             LineItem.objects.create(invoice=invoice, **item_data)
+
+        return invoice
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
@@ -86,4 +93,3 @@ class PaymentSerializer(serializers.ModelSerializer):
                 "Invoice must belong to the same customer as the payment."
             )
         return data
-

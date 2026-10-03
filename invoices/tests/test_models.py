@@ -107,7 +107,6 @@ def test_invoice_is_overdue():
 
     invoice2 = Invoice.objects.create(
         customer=customer,
-        invoice_number="1",
         invoice_date="2026-08-01",
         due_date=date.today() - timedelta(days=5),
     )

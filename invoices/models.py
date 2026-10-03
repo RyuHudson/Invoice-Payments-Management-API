@@ -34,9 +34,9 @@ class Invoice(models.Model):
         if not self.invoice_number:
             last_invoice = Invoice.objects.order_by("-id").first()
             if last_invoice:
-                self.invoice_number=str(int(last_invoice.invoice_number)+ 1)
+                self.invoice_number = str(int(last_invoice.invoice_number) + 1)
             else:
-                self.invoice_number= "1"
+                self.invoice_number = "1"
         super().save(*args, **kwargs)
 
     @property
@@ -94,4 +94,3 @@ class Payment(models.Model):
     )
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     payment_date = models.DateField()
-
