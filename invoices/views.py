@@ -1,7 +1,9 @@
 from rest_framework import viewsets
+from collections import Counter
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from .models import Customer, Invoice, LineItem, Payment
 from .serializers import (
     CustomerSerializer,
@@ -12,6 +14,7 @@ from .serializers import (
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
+from decimal import Decimal
 
 
 # Create your views here.
@@ -65,6 +68,28 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         pisa.CreatePDF(html_string, dest=response)
 
         return response
+
+    @extend_schema(tags=["Invoices"], summary="Invoice summary report")
+    @action(detail=False, methods=["get"], url_path="summary")
+    def summary(self, request):
+        invoices = self.get_queryset().prefetch_related("line_items", "payments")
+        zero = Decimal("0.00")
+
+        total_invoiced = sum((invoice.total for invoice in invoices), zero)
+        total_paid = sum(
+            (p.amount for inv in invoices for p in inv.payments.all()), zero
+        )
+        total_outstanding = sum((inv.outstanding_amount for inv in invoices), zero)
+
+        data = {
+            "invoice_count": len(invoices),
+            "total_invoiced": total_invoiced,
+            "total_outstanding": total_outstanding,
+            "total_paid": total_paid,
+            "overdue_count": sum(1 for inv in invoices if inv.is_overdue),
+            "by_status": dict(Counter(inv.status for inv in invoices)),
+        }
+        return Response(data)
 
 
 @extend_schema_view(
