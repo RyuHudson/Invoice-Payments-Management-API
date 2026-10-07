@@ -1,0 +1,44 @@
+<html>
+<head>
+<style>
+    body { font-family: Helvetica, sans-serif; font-size: 12px; }
+    h1 { font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    .totals { margin-top: 20px; text-align: right; font-weight: bold; }
+</style>
+</head>
+<body>
+    <h1>Invoice #{{ invoice.invoice_number }}</h1>
+    <p><strong>Customer:</strong> {{ invoice.customer.name }}</p>
+    <p><strong>Invoice date:</strong> {{ invoice.invoice_date }}</p>
+    <p><strong>Due date:</strong> {{ invoice.due_date }}</p>
+    <p><strong>Status:</strong> {{ invoice.status }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.line_items.all %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td>{{ item.unit_price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.sub_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        Total: {{ invoice.total }}
+    </div>
+</body>
+</html>

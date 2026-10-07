@@ -1,5 +1,7 @@
 from rest_framework import viewsets
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from .models import Customer, Invoice, LineItem, Payment
 from .serializers import (
     CustomerSerializer,
@@ -7,6 +9,9 @@ from .serializers import (
     LineItemSerializer,
     PaymentSerializer,
 )
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 
 
 # Create your views here.
@@ -38,6 +43,28 @@ class CustomerViewSet(viewsets.ModelViewSet):
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+
+    @extend_schema(
+        tags=["Invoices"], summary="Download invoice as PDF", responses={200: bytes}
+    )
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="pdf",
+        permission_classes=[IsAuthenticated],
+    )
+    def invoice_pdf(self, request, pk=None):
+        invoice = self.get_object()
+        html_string = render_to_string(
+            "invoices/invoice_pdf.html", {"invoice": invoice}
+        )
+
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="invoice_{invoice.id}.pdf"'
+
+        pisa.CreatePDF(html_string, dest=response)
+
+        return response
 
 
 @extend_schema_view(

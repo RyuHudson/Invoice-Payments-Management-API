@@ -987,3 +987,46 @@ def test_list_payments_returns_created_payments():
     amounts = [payment["amount"] for payment in response.data]
     assert "50.00" in amounts
     assert "75.00" in amounts
+
+
+@pytest.mark.django_db
+def test_get_invoice_pdf_authorized_returns_200():
+    user = User.objects.create(username="Gigi Buffon", password="testpass123")
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(
+        invoice_number="1", customer_id=customer.id, invoice_date=date.today()
+    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.get(f"http://127.0.0.1:8000/api/v1/invoices/{invoice.id}/pdf/")
+
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_get_missing_invoice_pdf_authorized_returns_404():
+    user = User.objects.create(username="Gigi Buffon", password="testpass123")
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    Invoice.objects.create(
+        invoice_number="1", customer_id=customer.id, invoice_date=date.today()
+    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.get("http://127.0.0.1:8000/api/v1/invoices/10/pdf/")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_get_invoice_pdf_unauthorized_returns_401():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(
+        invoice_number="1", customer_id=customer.id, invoice_date=date.today()
+    )
+    client = APIClient()
+
+    response = client.get(f"http://127.0.0.1:8000/api/v1/invoices/{invoice.id}/pdf/")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

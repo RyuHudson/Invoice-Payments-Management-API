@@ -80,6 +80,10 @@ class LineItem(models.Model):
     def __str__(self):
         return f"{self.description} ({self.invoice.invoice_number})"
 
+    @property
+    def sub_total(self):
+        return self.unit_price * self.quantity
+
 
 class Payment(models.Model):
     customer = models.ForeignKey(

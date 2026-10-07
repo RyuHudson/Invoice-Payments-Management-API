@@ -11,9 +11,11 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
 class LineItemSerializer(serializers.ModelSerializer):
+    sub_total = serializers.ReadOnlyField()
+
     class Meta:
         model = LineItem
-        fields = ["id", "invoice", "description", "unit_price", "quantity"]
+        fields = ["id", "invoice", "description", "unit_price", "quantity", "sub_total"]
         extra_kwargs = {"invoice": {"required": False}}
 
 
