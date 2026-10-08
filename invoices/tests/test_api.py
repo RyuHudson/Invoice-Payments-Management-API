@@ -2,6 +2,7 @@ import pytest
 from datetime import date
 from rest_framework.test import APIClient
 from rest_framework import status
+from decimal import Decimal
 from invoices.models import Customer, Invoice, LineItem, Payment
 from django.contrib.auth.models import User
 
@@ -1028,5 +1029,89 @@ def test_get_invoice_pdf_unauthorized_returns_401():
     client = APIClient()
 
     response = client.get(f"http://127.0.0.1:8000/api/v1/invoices/{invoice.id}/pdf/")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_summary_returns_correct_totals():
+    user = User.objects.create(username="Gigi Buffon", password="testpass123")
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(
+        customer_id=customer.id, invoice_date=date.today(), status="draft"
+    )
+    invoice2 = Invoice.objects.create(
+        customer_id=customer.id, invoice_date=date.today(), status="sent"
+    )
+    LineItem.objects.create(invoice=invoice, unit_price="100.00", quantity=1)
+    LineItem.objects.create(invoice=invoice2, unit_price="50.00", quantity=1)
+    Payment.objects.create(
+        invoice=invoice,
+        customer_id=customer.id,
+        amount="20.00",
+        payment_date=date.today(),
+    )
+    Payment.objects.create(
+        invoice=invoice,
+        customer_id=customer.id,
+        amount="10.00",
+        payment_date=date.today(),
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.get("/api/v1/invoices/summary/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["invoice_count"] == 2
+    assert response.data["total_invoiced"] == Decimal("150.00")
+    assert response.data["total_paid"] == Decimal("30.00")
+    assert response.data["total_outstanding"] == Decimal("120.00")
+    assert response.data["by_status"] == {"draft": 1, "sent": 1}
+
+
+@pytest.mark.django_db
+def test_empty_database():
+    user = User.objects.create(username="Gigi Buffon", password="testpass123")
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.get("/api/v1/invoices/summary/")
+
+    assert response.data["total_invoiced"] == Decimal("0.00")
+    assert response.data["total_paid"] == Decimal("0.00")
+    assert response.data["total_outstanding"] == Decimal("0.00")
+    assert response.data["by_status"] == {}
+
+
+@pytest.mark.django_db
+def test_unauthorized_get_summary_returns_401():
+    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+    invoice = Invoice.objects.create(
+        customer_id=customer.id, invoice_date=date.today(), status="draft"
+    )
+    invoice2 = Invoice.objects.create(
+        customer_id=customer.id, invoice_date=date.today(), status="sent"
+    )
+    LineItem.objects.create(invoice=invoice, unit_price="100.00", quantity=1)
+    LineItem.objects.create(invoice=invoice2, unit_price="50.00", quantity=1)
+    Payment.objects.create(
+        invoice=invoice,
+        customer_id=customer.id,
+        amount="20.00",
+        payment_date=date.today(),
+    )
+    Payment.objects.create(
+        invoice=invoice,
+        customer_id=customer.id,
+        amount="10.00",
+        payment_date=date.today(),
+    )
+
+    client = APIClient()
+
+    response = client.get("/api/v1/invoices/summary/")
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED

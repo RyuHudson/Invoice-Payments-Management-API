@@ -70,7 +70,12 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         return response
 
     @extend_schema(tags=["Invoices"], summary="Invoice summary report")
-    @action(detail=False, methods=["get"], url_path="summary")
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="summary",
+        permission_classes=[IsAuthenticated],
+    )
     def summary(self, request):
         invoices = self.get_queryset().prefetch_related("line_items", "payments")
         zero = Decimal("0.00")
@@ -84,8 +89,8 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         data = {
             "invoice_count": len(invoices),
             "total_invoiced": total_invoiced,
-            "total_outstanding": total_outstanding,
             "total_paid": total_paid,
+            "total_outstanding": total_outstanding,
             "overdue_count": sum(1 for inv in invoices if inv.is_overdue),
             "by_status": dict(Counter(inv.status for inv in invoices)),
         }
