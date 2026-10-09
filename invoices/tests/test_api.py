@@ -8,30 +8,26 @@ from django.contrib.auth.models import User
 
 
 @pytest.mark.django_db
-def test_list_customers_returns_200():
-    client = APIClient()
-    response = client.get("/api/v1/customers/")
+def test_list_customers_returns_200(auth_client):
+    response = auth_client.get("/api/v1/customers/")
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_list_invoices_returns_200():
-    client = APIClient()
-    response = client.get("/api/v1/invoices/")
+def test_list_invoices_returns_200(auth_client):
+    response = auth_client.get("/api/v1/invoices/")
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_list_lineitems_returns_200():
-    client = APIClient()
-    response = client.get("/api/v1/lineitems/")
+def test_list_lineitems_returns_200(auth_client):
+    response = auth_client.get("/api/v1/lineitems/")
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_list_payments_returns_200():
-    client = APIClient()
-    response = client.get("/api/v1/payments/")
+def test_list_payments_returns_200(auth_client):
+    response = auth_client.get("/api/v1/payments/")
     assert response.status_code == status.HTTP_200_OK
 
 
@@ -912,20 +908,18 @@ def test_token_auth_without_valid_credentials_returns_no_token():
 
 
 @pytest.mark.django_db
-def test_list_customers_returns_created_customers():
+def test_list_customers_returns_created_customers(auth_client):
     Customer.objects.create(name="Acme Corp", email="acme@example.com")
     Customer.objects.create(name="Mischelin Corp", email="mischelincorp@example.com")
 
-    client = APIClient()
-
-    response = client.get("/api/v1/customers/")
+    response = auth_client.get("/api/v1/customers/")
 
     print(response.data)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_list_invoices_returns_created_invoices():
+def test_list_invoices_returns_created_invoices(auth_client):
     customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
     Invoice.objects.create(
         invoice_number="1", customer_id=customer.id, invoice_date=date.today()
@@ -934,8 +928,7 @@ def test_list_invoices_returns_created_invoices():
         invoice_number="2", customer_id=customer.id, invoice_date=date.today()
     )
 
-    client = APIClient()
-    response = client.get("/api/v1/invoices/")
+    response = auth_client.get("/api/v1/invoices/")
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
@@ -946,7 +939,7 @@ def test_list_invoices_returns_created_invoices():
 
 
 @pytest.mark.django_db
-def test_list_lineitems_returns_created_lineitems():
+def test_list_lineitems_returns_created_lineitems(auth_client):
     customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
     invoice = Invoice.objects.create(
         invoice_number="1", customer_id=customer.id, invoice_date=date.today()
@@ -958,8 +951,7 @@ def test_list_lineitems_returns_created_lineitems():
         invoice_id=invoice.id, description="gadget", unit_price="20.00", quantity="2"
     )
 
-    client = APIClient()
-    response = client.get("/api/v1/lineitems/")
+    response = auth_client.get("/api/v1/lineitems/")
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
@@ -970,7 +962,7 @@ def test_list_lineitems_returns_created_lineitems():
 
 
 @pytest.mark.django_db
-def test_list_payments_returns_created_payments():
+def test_list_payments_returns_created_payments(auth_client):
     customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
     Payment.objects.create(
         customer_id=customer.id, amount="50.00", payment_date=date.today()
@@ -979,8 +971,7 @@ def test_list_payments_returns_created_payments():
         customer_id=customer.id, amount="75.00", payment_date=date.today()
     )
 
-    client = APIClient()
-    response = client.get("/api/v1/payments/")
+    response = auth_client.get("/api/v1/payments/")
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
