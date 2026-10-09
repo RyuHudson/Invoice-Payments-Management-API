@@ -7,7 +7,8 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ["id", "name", "email", "address", "balance"]
+        fields = ["id", "owner", "name", "email", "address", "balance"]
+        extra_kwargs = {"owner": {"read_only": True}}
 
 
 class LineItemSerializer(serializers.ModelSerializer):

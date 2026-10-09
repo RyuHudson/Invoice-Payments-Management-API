@@ -169,13 +169,12 @@ def test_create_payment_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_patch_customer_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
+def test_patch_customer_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
 
-    response = client.patch(
+    response = auth_client.patch(
         f"/api/v1/customers/{customer.id}/",
         {"name": "acne man", "email": "acneman@gmail.com"},
     )
@@ -196,19 +195,18 @@ def test_patch_customer_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_patch_invoice_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_patch_invoice_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     customer2 = Customer.objects.create(
-        name="Mischelin Corp", email="mischelincorp@example.com"
+        name="Mischelin Corp", email="mischelincorp@example.com", owner=user
     )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.patch(
+    response = auth_client.patch(
         f"/api/v1/invoices/{invoice.id}/",
         {
             "invoice_number": "4",
@@ -243,10 +241,12 @@ def test_patch_invoice_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_patch_lineitem_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_patch_lineitem_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     customer2 = Customer.objects.create(
-        name="Mischelin Corp", email="mischelincorp@example.com"
+        name="Mischelin Corp", email="mischelincorp@example.com", owner=user
     )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
@@ -258,11 +258,7 @@ def test_patch_lineitem_with_valid_auth_succeeds():
         invoice_id=invoice.id, unit_price="15.00", quantity="2"
     )
 
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
-
-    response = client.patch(
+    response = auth_client.patch(
         f"/api/v1/lineitems/{line_item.id}/",
         {"invoice": invoice2.id, "unit_price": "20.00", "quantity": "1"},
     )
@@ -296,8 +292,10 @@ def test_patch_lineitem_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_patch_payment_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_patch_payment_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
@@ -307,11 +305,10 @@ def test_patch_payment_with_valid_auth_succeeds():
         amount="120.00",
         payment_date=date.today(),
     )
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.patch(f"/api/v1/payments/{payment.id}/", {"amount": "120.00"})
+    response = auth_client.patch(
+        f"/api/v1/payments/{payment.id}/", {"amount": "120.00"}
+    )
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -335,13 +332,12 @@ def test_patch_payment_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_put_customer_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
+def test_put_customer_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
 
-    response = client.put(
+    response = auth_client.put(
         f"/api/v1/customers/{customer.id}/",
         {"name": "Bonny Corp", "email": "bonny@example.com"},
     )
@@ -362,16 +358,15 @@ def test_put_customer_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_put_invoice_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_put_invoice_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.put(
+    response = auth_client.put(
         f"/api/v1/invoices/{invoice.id}/",
         {
             "invoice_number": "4",
@@ -399,10 +394,12 @@ def test_put_invoice_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_put_lineitem_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_put_lineitem_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     customer2 = Customer.objects.create(
-        name="Mischelin Corp", email="mischelincorp@example.com"
+        name="Mischelin Corp", email="mischelincorp@example.com", owner=user
     )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
@@ -414,11 +411,7 @@ def test_put_lineitem_with_valid_auth_succeeds():
         invoice_id=invoice.id, unit_price="15.00", quantity="2"
     )
 
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
-
-    response = client.put(
+    response = auth_client.put(
         f"/api/v1/lineitems/{line_item.id}/",
         {
             "invoice": invoice2.id,
@@ -462,8 +455,10 @@ def test_put_lineitem_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_put_payment_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_put_payment_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
@@ -473,12 +468,8 @@ def test_put_payment_with_valid_auth_succeeds():
         amount="120.00",
         payment_date=date.today(),
     )
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
 
-    client = APIClient()
-    client.force_authenticate(user=user)
-
-    response = client.put(
+    response = auth_client.put(
         f"/api/v1/payments/{payment.id}/",
         {
             "invoice_id": invoice.id,
@@ -518,13 +509,12 @@ def test_put_payment_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_delete_customer_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
+def test_delete_customer_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
 
-    response = client.delete(f"/api/v1/customers/{customer.id}/")
+    response = auth_client.delete(f"/api/v1/customers/{customer.id}/")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -540,16 +530,15 @@ def test_delete_customer_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_delete_invoice_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_delete_invoice_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.delete(f"/api/v1/invoices/{invoice.id}/")
+    response = auth_client.delete(f"/api/v1/invoices/{invoice.id}/")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -569,19 +558,18 @@ def test_delete_invoice_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_delete_lineitem_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
+def test_delete_lineitem_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
     line_item = LineItem.objects.create(
         invoice_id=invoice.id, unit_price="15.00", quantity="2"
     )
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.delete(f"/api/v1/lineitems/{line_item.id}/")
+    response = auth_client.delete(f"/api/v1/lineitems/{line_item.id}/")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -603,16 +591,15 @@ def test_delete_lineitem_without_auth_is_rejected():
 
 
 @pytest.mark.django_db
-def test_delete_payment_with_valid_auth_succeeds():
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_delete_payment_with_valid_auth_succeeds(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     payment = Payment.objects.create(
         customer_id=customer.id, amount="120.00", payment_date=date.today()
     )
-    user = User.objects.create_user(username="Gigi_Buffon", password="testpass123")
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.delete(f"/api/v1/payments/{payment.id}/")
+    response = auth_client.delete(f"/api/v1/payments/{payment.id}/")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -919,8 +906,10 @@ def test_list_customers_returns_created_customers(auth_client):
 
 
 @pytest.mark.django_db
-def test_list_invoices_returns_created_invoices(auth_client):
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_list_invoices_returns_created_invoices(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     Invoice.objects.create(
         invoice_number="1", customer_id=customer.id, invoice_date=date.today()
     )
@@ -939,8 +928,10 @@ def test_list_invoices_returns_created_invoices(auth_client):
 
 
 @pytest.mark.django_db
-def test_list_lineitems_returns_created_lineitems(auth_client):
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_list_lineitems_returns_created_lineitems(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="1", customer_id=customer.id, invoice_date=date.today()
     )
@@ -962,8 +953,10 @@ def test_list_lineitems_returns_created_lineitems(auth_client):
 
 
 @pytest.mark.django_db
-def test_list_payments_returns_created_payments(auth_client):
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_list_payments_returns_created_payments(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     Payment.objects.create(
         customer_id=customer.id, amount="50.00", payment_date=date.today()
     )
@@ -982,16 +975,17 @@ def test_list_payments_returns_created_payments(auth_client):
 
 
 @pytest.mark.django_db
-def test_get_invoice_pdf_authorized_returns_200():
-    user = User.objects.create(username="Gigi Buffon", password="testpass123")
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_get_invoice_pdf_authorized_returns_200(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="1", customer_id=customer.id, invoice_date=date.today()
     )
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    response = client.get(f"http://127.0.0.1:8000/api/v1/invoices/{invoice.id}/pdf/")
+    response = auth_client.get(
+        f"http://127.0.0.1:8000/api/v1/invoices/{invoice.id}/pdf/"
+    )
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -1025,9 +1019,10 @@ def test_get_invoice_pdf_unauthorized_returns_401():
 
 
 @pytest.mark.django_db
-def test_summary_returns_correct_totals():
-    user = User.objects.create(username="Gigi Buffon", password="testpass123")
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com")
+def test_summary_returns_correct_totals(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         customer_id=customer.id, invoice_date=date.today(), status="draft"
     )
@@ -1049,10 +1044,7 @@ def test_summary_returns_correct_totals():
         payment_date=date.today(),
     )
 
-    client = APIClient()
-    client.force_authenticate(user=user)
-
-    response = client.get("/api/v1/invoices/summary/")
+    response = auth_client.get("/api/v1/invoices/summary/")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["invoice_count"] == 2
@@ -1106,3 +1098,26 @@ def test_unauthorized_get_summary_returns_401():
     response = client.get("/api/v1/invoices/summary/")
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_customer_of_own_user_returns_200(auth_client, user):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
+
+    response = auth_client.get(f"/api/v1/customers/{customer.id}/")
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_customer_of_other_user_returns_404(auth_client):
+    user2 = User.objects.create_user(username="quamobigs", password="testpass321")
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user2
+    )
+
+    response = auth_client.get(f"/api/v1/customers/{customer.id}/")
+
+    assert response.status_code == 404

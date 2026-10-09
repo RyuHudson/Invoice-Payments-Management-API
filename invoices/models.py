@@ -1,10 +1,18 @@
 from django.db import models
 from datetime import date
 from django.core.validators import MinValueValidator
+from django.conf import settings
 
 
 # Create your models here.
 class Customer(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="customers",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=255)
     email = models.EmailField()
     address = models.TextField(blank=True)

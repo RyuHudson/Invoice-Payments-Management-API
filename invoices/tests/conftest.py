@@ -4,8 +4,12 @@ from rest_framework.test import APIClient
 
 
 @pytest.fixture
-def auth_client():
-    user = User.objects.create(username="testuser", password="testpass123")
+def user():
+    return User.objects.create(username="testuser", password="testpass123")
+
+
+@pytest.fixture
+def auth_client(user):
     client = APIClient()
     client.force_authenticate(user=user)
     return client

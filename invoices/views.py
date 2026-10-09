@@ -32,6 +32,15 @@ class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Customer.objects.all()
+        return Customer.objects.filter(owner=user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 @extend_schema_view(
     list=extend_schema(summary="List all invoices", tags=["Invoices"]),
@@ -46,6 +55,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Invoice.objects.all()
+        return Invoice.objects.filter(customer__owner=user)
 
     @extend_schema(
         tags=["Invoices"], summary="Download invoice as PDF", responses={200: bytes}
@@ -111,6 +126,12 @@ class LineItemViewSet(viewsets.ModelViewSet):
     queryset = LineItem.objects.all()
     serializer_class = LineItemSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return LineItem.objects.all()
+        return LineItem.objects.filter(invoice__customer__owner=user)
+
 
 @extend_schema_view(
     list=extend_schema(summary="List all payment", tags=["Payments"]),
@@ -125,3 +146,9 @@ class LineItemViewSet(viewsets.ModelViewSet):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Payment.objects.all()
+        return Payment.objects.filter(customer__owner=user)
