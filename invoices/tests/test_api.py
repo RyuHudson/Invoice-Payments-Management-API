@@ -87,7 +87,9 @@ def test_create_invoice_without_auth_is_rejected():
 
 @pytest.mark.django_db
 def test_create_lineitem_with_valid_auth_succeeds(auth_client, user):
-    customer = Customer.objects.create(name="Acme Corp", email="acme@example.com", owner=user)
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acme@example.com", owner=user
+    )
     invoice = Invoice.objects.create(
         invoice_number="3", customer_id=customer.id, invoice_date=date.today()
     )
