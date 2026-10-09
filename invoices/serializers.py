@@ -19,6 +19,14 @@ class LineItemSerializer(serializers.ModelSerializer):
         fields = ["id", "invoice", "description", "unit_price", "quantity", "sub_total"]
         extra_kwargs = {"invoice": {"required": False}}
 
+    def validate_invoice(self, value):
+        user = self.context["request"].user
+        if user == value.customer.owner or user.is_superuser:
+            return value
+        raise serializers.ValidationError(
+            "You do not have the rights to create a line item for this invoice"
+        )
+
 
 class InvoiceSerializer(serializers.ModelSerializer):
     invoice_number = serializers.ReadOnlyField()
@@ -48,6 +56,14 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "total",
             "line_items",
         ]
+
+    def validate_customer_id(self, value):
+        user = self.context["request"].user
+        if user == value.owner or user.is_superuser:
+            return value
+        raise serializers.ValidationError(
+            "You do not have the rights to create an invoice for this customer"
+        )
 
     def get_total(self, obj):
         return obj.total
@@ -96,3 +112,21 @@ class PaymentSerializer(serializers.ModelSerializer):
                 "Invoice must belong to the same customer as the payment."
             )
         return data
+
+    def validate_customer_id(self, value):
+        user = self.context["request"].user
+        if user == value.owner or user.is_superuser:
+            return value
+        raise serializers.ValidationError(
+            "You do not have the rights to create a payment for this customer"
+        )
+
+    def validate_invoice_id(self, value):
+        user = self.context["request"].user
+        if value is None:
+            return None
+        if user == value.customer.owner or user.is_superuser:
+            return value
+        raise serializers.ValidationError(
+            "You do not have the rights to create a payment for this invoice"
+        )
