@@ -14,6 +14,18 @@ def other_user():
 
 
 @pytest.fixture
+def superuser():
+    return User.objects.create_superuser(username="superuser", password="passtest123")
+
+
+@pytest.fixture
+def superuser_client(superuser):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+    return client
+
+
+@pytest.fixture
 def auth_client(user):
     client = APIClient()
     client.force_authenticate(user=user)

@@ -1288,3 +1288,28 @@ def test_payment_with_same_user_and_same_customer_returns_201(user, auth_client)
     )
 
     assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db
+def test_superuser_accessing_all_customers_returns_200(
+    user, other_user, superuser_client
+):
+    Customer.objects.create(name="Acme Corp", email="acmecorp@example.com", owner=user)
+    Customer.objects.create(name="Acne", email="acne@example.com", owner=other_user)
+
+    response = superuser_client.get("/api/v1/customers/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+
+@pytest.mark.django_db
+def test_normal_user_accessing_own_customers_returns_200(user, other_user, auth_client):
+    Customer.objects.create(name="Acme Corp", email="acmecorp@example.com", owner=user)
+    Customer.objects.create(name="Acne", email="acne@example.com", owner=other_user)
+
+    response = auth_client.get("/api/v1/customers/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]["name"] == "Acme Corp"
