@@ -1176,10 +1176,10 @@ def test_payment_without_invoice_returns_201(auth_client, user):
 @pytest.mark.django_db
 def test_payment_for_other_users_invoice_returns_400(auth_client, user, other_user):
     my_customer = Customer.objects.create(
-        name="Mine", email="mine@example.com", owner=user
+        name="Acme Corp", email="acmecorp@example.com", owner=user
     )
     other_customer = Customer.objects.create(
-        name="Theirs", email="theirs@example.com", owner=other_user
+        name="Acne", email="acne@example.com", owner=other_user
     )
     other_invoice = Invoice.objects.create(
         customer=other_customer, invoice_date=date.today()
@@ -1202,7 +1202,7 @@ def test_payment_for_other_users_invoice_returns_400(auth_client, user, other_us
 @pytest.mark.django_db
 def test_payment_for_other_users_customer_returns_400(auth_client, other_user):
     other_customer = Customer.objects.create(
-        name="Theirs", email="theirs@example.com", owner=other_user
+        name="Acme Corp", email="acme@example.com", owner=other_user
     )
 
     response = auth_client.post(
@@ -1222,7 +1222,7 @@ def test_payment_for_other_users_customer_returns_400(auth_client, other_user):
 @pytest.mark.django_db
 def test_line_item_for_other_users_invoice_returns_400(auth_client, other_user):
     other_customer = Customer.objects.create(
-        name="Theirs", email="theirs@example.com", owner=other_user
+        name="Acme Corp", email="acmecorp@example.com", owner=other_user
     )
     other_invoice = Invoice.objects.create(
         customer=other_customer, invoice_date=date.today()
@@ -1239,3 +1239,52 @@ def test_line_item_for_other_users_invoice_returns_400(auth_client, other_user):
         format="json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+def test_payment_with_same_user_but_other_customer_returns_400(user, auth_client):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acmecorp@example.com", owner=user
+    )
+    other_customer = Customer.objects.create(
+        name="Acne", email="acne@example.com", owner=user
+    )
+    invoice = Invoice.objects.create(
+        customer=customer, invoice_date=date.today(), status="draft"
+    )
+
+    response = auth_client.post(
+        "/api/v1/payments/",
+        {
+            "customer_id": other_customer.id,
+            "invoice_id": invoice.id,
+            "amount": "50.00",
+            "payment_date": date.today(),
+        },
+        format="json",
+    )
+    print(response.data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+def test_payment_with_same_user_and_same_customer_returns_201(user, auth_client):
+    customer = Customer.objects.create(
+        name="Acme Corp", email="acmecorp@example.com", owner=user
+    )
+    invoice = Invoice.objects.create(
+        customer=customer, invoice_date=date.today(), status="draft"
+    )
+
+    response = auth_client.post(
+        "/api/v1/payments/",
+        {
+            "customer_id": customer.id,
+            "invoice_id": invoice.id,
+            "amount": "50.00",
+            "payment_date": date.today(),
+        },
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
