@@ -80,11 +80,11 @@ WSGI_APPLICATION = "invoiceproject.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "invoicedb",
-        "USER": "postgres",
+        "NAME": config("DB_NAME", default="invoicedb"),
+        "USER": config("DB_USER", default="postgres"),
         "PASSWORD": config("DB_PASSWORD"),
-        "HOST": "localhost",
-        "PORT": "5432",
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_NAME", default="5432"),
     }
 }
 # Permission class and Authentication class
