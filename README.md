@@ -29,6 +29,16 @@ During my time at my previous employer, through the daily exposure to SalesForce
 - Docker and Docker Compose
 - GitHub Actions (CI)
 
+## Screenshots
+
+![Swagger overview](swagger-images/swagger-overview.png)
+
+![Summary endpoint](swagger-images/swagger-summary.png)
+
+![Generated invoice PDF](swagger-images/screenshot-invoice-4.png)
+
+[View the sample invoice as a PDF](swagger-images/invoice-4.pdf)
+
 ## Run with Docker
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Clone the repository and open the project folder.
