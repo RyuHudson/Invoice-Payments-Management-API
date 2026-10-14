@@ -12,9 +12,9 @@
 <body>
     <h1>Invoice #{{ invoice.invoice_number }}</h1>
     <p><strong>Customer:</strong> {{ invoice.customer.name }}</p>
-    <p><strong>Invoice date:</strong> {{ invoice.invoice_date }}</p>
-    <p><strong>Due date:</strong> {{ invoice.due_date }}</p>
-    <p><strong>Status:</strong> {{ invoice.status }}</p>
+    <p><strong>Invoice date:</strong> {{ invoice.invoice_date|date:"d M Y" }}</p>
+    <p><strong>Due date:</strong> {{ invoice.due_date|date:"d M Y"|default:"On receipt" }}</p>
+    <p><strong>Status:</strong> {{ invoice.status|title }}</p>
 
     <table>
         <thead>

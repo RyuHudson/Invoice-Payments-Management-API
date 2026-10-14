@@ -9,7 +9,7 @@ During my time at my previous employer, through the daily exposure to SalesForce
 - Access only granted to authorized users with a token
 - Nested writes: create an invoice with its line items in one request
 - Automatic invoice numbering
-- Summary endpoint with customer's invoice totals
+- Totals per customer
 - PDF invoice generation
 - Token and Session Authentication
 - Token-based login endpoint for obtaining an auth token
@@ -32,12 +32,11 @@ During my time at my previous employer, through the daily exposure to SalesForce
 ## Run with Docker
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Clone the repository and open the project folder.
-3. Copy the example environment file:
+3. Copy the example environment file, Then open `.env` and replace `change-me` with a password of your choice.
 ```bash
 copy .env.example .env # Windows
 cp .env.example .env # macOS / Linux
 ```
-   Then open `.env` and replace `change-me` with a password of your choice.
 4. Start the API and the database:
 ```bash
 docker compose up --build
@@ -50,9 +49,8 @@ docker compose exec web python manage.py createsuperuser
 ```bash
 docker compose exec web python manage.py seed_demo
 ```
-   This creates a user `demo` (password `demo12345`) with sample customers, invoices and payments. For local demo use only.
-7. Open the API documentation at `http://localhost:8000/api/docs/`.
-   To log in, get a token with `POST /api/token-auth/`, click **Authorize** and enter `Token <your token>`.
+This creates a user `demo` (password `demo12345`) with sample customers, invoices and payments. For local demo use only.
+7. Open the API documentation at `http://localhost:8000/api/docs/`. To log in, get a token with `POST /api/token-auth/`, click **Authorize** and enter `Token <your token>`.
 
 The database starts empty. Its data is stored in a Docker volume on your own machine.
 `docker compose down` keeps the data; `docker compose down -v` deletes it.
