@@ -2,8 +2,11 @@ from rest_framework import viewsets
 from collections import Counter
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework.decorators import action
+from drf_spectacular.types import OpenApiTypes
+from rest_framework.renderers import JSONRenderer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from .renderers import PDFRenderer
 from .models import Customer, Invoice, LineItem, Payment
 from .serializers import (
     CustomerSerializer,
@@ -63,13 +66,16 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         return Invoice.objects.filter(customer__owner=user)
 
     @extend_schema(
-        tags=["Invoices"], summary="Download invoice as PDF", responses={200: bytes}
+        tags=["Invoices"],
+        summary="Download invoice as PDF",
+        responses={(200, "application/pdf"): OpenApiTypes.BINARY},
     )
     @action(
         detail=True,
         methods=["get"],
         url_path="pdf",
         permission_classes=[IsAuthenticated],
+        renderer_classes=[JSONRenderer, PDFRenderer],
     )
     def invoice_pdf(self, request, pk=None):
         invoice = self.get_object()
@@ -78,7 +84,9 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         )
 
         response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = f'inline; filename="invoice_{invoice.id}.pdf"'
+        response["Content-Disposition"] = (
+            f'attachment; filename="invoice_{invoice.id}.pdf"'
+        )
 
         pisa.CreatePDF(html_string, dest=response)
 
