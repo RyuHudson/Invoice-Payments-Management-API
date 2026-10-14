@@ -30,22 +30,29 @@ During my time at my previous employer, through the daily exposure to SalesForce
 - GitHub Actions (CI)
 
 ## Run with Docker
-1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/). 
-2. Clone the repository and open the project folder
-3. Copy the example environment file and set a password. Open .env and replace change-me with a password of your choice:
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+2. Clone the repository and open the project folder.
+3. Copy the example environment file:
 ```bash
 copy .env.example .env # Windows
 cp .env.example .env # macOS / Linux
 ```
+   Then open `.env` and replace `change-me` with a password of your choice.
 4. Start the API and the database:
 ```bash
 docker compose up --build
 ```
-5. In a second terminal, create a superuser:
+5. In a second terminal, create a superuser (needed for the Django admin):
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
-6. Open the API documentation at `http://localhost:8000/api/docs/`.
+6. (Optional) Load demo data:
+```bash
+docker compose exec web python manage.py seed_demo
+```
+   This creates a user `demo` (password `demo12345`) with sample customers, invoices and payments. For local demo use only.
+7. Open the API documentation at `http://localhost:8000/api/docs/`.
+   To log in, get a token with `POST /api/token-auth/`, click **Authorize** and enter `Token <your token>`.
 
 The database starts empty. Its data is stored in a Docker volume on your own machine.
 `docker compose down` keeps the data; `docker compose down -v` deletes it.

@@ -105,7 +105,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        invoice = data.get("invoice")
+        invoice = data.get("invoice", getattr(self.instance, "invoice", None))
         customer = data.get("customer", getattr(self.instance, "customer", None))
         if invoice and customer and invoice.customer_id != customer.id:
             raise serializers.ValidationError(
