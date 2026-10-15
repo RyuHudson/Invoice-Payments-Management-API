@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from collections import Counter
 from django.utils.dateparse import parse_date
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework.decorators import action
 from drf_spectacular.types import OpenApiTypes
 from rest_framework.renderers import JSONRenderer
@@ -93,7 +93,24 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
         return response
 
-    @extend_schema(tags=["Invoices"], summary="Invoice summary report")
+    @extend_schema(
+        tags=["Invoices"],
+        summary="Invoice summary report",
+        parameters=[
+            OpenApiParameter(
+                name="date_from",
+                type=OpenApiTypes.DATE,
+                required=False,
+                description="Invoices dated on or after this date (YYYY-MM-DD)",
+            ),
+            OpenApiParameter(
+                name="date_to",
+                type=OpenApiTypes.DATE,
+                required=False,
+                description="Invoices dated on or before this date (YYYY-MM-DD)",
+            ),
+        ],
+    )
     @action(
         detail=False,
         methods=["get"],
