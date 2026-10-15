@@ -17,6 +17,7 @@ During my time at my previous employer, through the daily exposure to SalesForce
 - Interactive API documentation with Swagger (drf-spectacular)
 - Automated tests with pytest, flake8, and black (CI pipeline)
 - Runs with a single command using Docker Compose
+- Summary report with optional date range filter (`?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD`)
 
 ## Tech Stack
 - Python
@@ -83,11 +84,11 @@ Each user only sees their own data; superusers see everything.
 
 Extra endpoints:
 
-| Method | Endpoint                        | Description                           |
-|--------|---------------------------------|---------------------------------------|
-| GET    | `/api/v1/invoices/{id}/pdf/`    | Download an invoice as a PDF          |
-| GET    | `/api/v1/invoices/summary/`     | Summary of all invoices               |
-| POST   | `/api/token-auth/`              | Obtain an authentication token        |
+| Method | Endpoint                        | Description                                                     |
+|--------|---------------------------------|-----------------------------------------------------------------|
+| GET    | `/api/v1/invoices/{id}/pdf/`    | Download an invoice as a PDF                                    |
+| GET    | `/api/v1/invoices/summary/`     | Totals and counts; optional `date_from` / `date_to` (YYYY-MM-DD)|
+| POST   | `/api/token-auth/`              | Obtain an authentication token                                  |
 
 Requesting an object that belongs to another user returns `404`.
 
