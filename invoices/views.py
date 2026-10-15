@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from collections import Counter
+from django.utils.dateparse import parse_date
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework.decorators import action
 from drf_spectacular.types import OpenApiTypes
@@ -100,7 +101,39 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def summary(self, request):
-        invoices = self.get_queryset().prefetch_related("line_items", "payments")
+        raw_from = request.query_params.get("date_from")
+        date_from = None
+
+        if raw_from:
+            try:
+                date_from = parse_date(raw_from)
+            except ValueError:
+                date_from = None
+            if date_from is None:
+                return Response(
+                    {"date_from": "Invalid date. Use YYYY-MM-DD."}, status=400
+                )
+
+        raw_to = request.query_params.get("date_to")
+        date_to = None
+        if raw_to:
+            try:
+                date_to = parse_date(raw_to)
+            except ValueError:
+                date_to = None
+            if date_to is None:
+                return Response(
+                    {"date_to": "Invalid date. Use YYYY-MM-DD."}, status=400
+                )
+
+        invoices = self.get_queryset()
+
+        if date_from:
+            invoices = invoices.filter(invoice_date__gte=date_from)
+        if date_to:
+            invoices = invoices.filter(invoice_date__lte=date_to)
+
+        invoices = invoices.prefetch_related("line_items", "payments")
         zero = Decimal("0.00")
 
         total_invoiced = sum((invoice.total for invoice in invoices), zero)
