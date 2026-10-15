@@ -111,12 +111,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             ),
         ],
     )
-    @action(
-        detail=False,
-        methods=["get"],
-        url_path="summary",
-        permission_classes=[IsAuthenticated],
-    )
+    @action(detail=False, methods=["get"], url_path="summary")
     def summary(self, request):
         raw_from = request.query_params.get("date_from")
         date_from = None

@@ -66,6 +66,43 @@ This creates a user `demo` (password `demo12345`) with sample customers, invoice
 The database starts empty. Its data is stored in a Docker volume on your own machine.
 `docker compose down` keeps the data; `docker compose down -v` deletes it.
 
+## Run locally (without Docker)
+
+Requires Python 3.12+ and open the folder:
+
+1. Clone the repository and open the folder:
+```powershell
+git clone https://github.com/RyuHudson/Invoice-Payments-Management-API.git
+cd Invoice-Payments-Management-API
+```
+
+2. Create and activate a virtual environment:
+
+```powershell
+python -m venv venv
+venv/Scripts.activate
+```
+
+3. Install the dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+4. Create a PostgreSQL database named `invoicedb`, then copy `.env.example` to `.env` and fill in your database password.
+
+5. Apply the migrations and create an admin user:
+
+```powershell
+python manage.py seed_demo
+```
+
+7. Start the server. The API docs are at http://127.0.0.1.:8000/api/docs/
+
+```powershell
+python manage.py runserver
+```
+
 ## API Endpoints
 
 All endpoints are prefixed with `/api/v1/` and require authentication (see [Authentication](#authentication)).
