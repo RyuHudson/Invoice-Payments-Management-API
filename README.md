@@ -4,6 +4,12 @@ A REST API for managing invoices, customers, and payments. Built with Django, Dj
 ## Why/Motivation
 During my time at my previous employer, through the daily exposure to SalesForce and SAP, processes like creating credit notes, partial payments, due dates, monthly closings, and many other aspects, have taught me how an invoice can have many different statuses, instead of just 'paid' or 'not paid'.
 
+## Live Demo
+- API docs (Swagger): https://invoice-api-j4pa.onrender.com/api/docs/
+- Demo login: `demo` / `demo12345` (get a token via `POST /api/token-auth/`, then click **Authorize** in Swagger and enter `Token <your-token>`)
+
+> Hosted on Render's free tier: the first request after a period of inactivity can take about a minute while the service wakes up.
+
 ## Features
 - Manage Customers, Invoices, Line Items, and Payments through a REST API
 - Access only granted to authorized users with a token
@@ -75,30 +81,21 @@ Requires Python 3.12+ and open the folder:
 git clone https://github.com/RyuHudson/Invoice-Payments-Management-API.git
 cd Invoice-Payments-Management-API
 ```
-
 2. Create and activate a virtual environment:
-
 ```powershell
 python -m venv venv
 venv/Scripts.activate
 ```
-
 3. Install the dependencies:
-
 ```powershell
 pip install -r requirements.txt
 ```
-
 4. Create a PostgreSQL database named `invoicedb`, then copy `.env.example` to `.env` and fill in your database password.
-
 5. Apply the migrations and create an admin user:
-
 ```powershell
 python manage.py seed_demo
 ```
-
 7. Start the server. The API docs are at http://127.0.0.1.:8000/api/docs/
-
 ```powershell
 python manage.py runserver
 ```
