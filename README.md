@@ -1,5 +1,5 @@
 # Invoice & Payments Management API
-A REST API for managing invoices, customers, and payments. Built with Django, Django REST Framework, and PostgreSQL, drawing on real invoicing workflows from my background in financial administration.
+A REST API for managing invoices, customers, and payments. Built with Django, Django REST Framework, PostgreSQL, and Docker, drawing on real invoicing workflows from my background in financial administration.
 
 ## Why/Motivation
 During my time at my previous employer, through the daily exposure to SalesForce and SAP, processes like making invoice related changes, have taught me how an invoice can have many different statuses, instead of just 'paid' or 'not paid'. Therefore, I wanted to relate my project to actual past experiences and the knowledge that I have gained.
