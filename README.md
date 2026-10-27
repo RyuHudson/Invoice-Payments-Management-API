@@ -67,6 +67,7 @@ docker compose exec web python manage.py createsuperuser
 docker compose exec web python manage.py seed_demo
 ```
 This creates a user `demo` (password `demo12345`) with sample customers, invoices and payments. For local demo use only.
+
 7. Open the API documentation at `http://localhost:8000/api/docs/`. To log in, get a token with `POST /api/token-auth/`, click **Authorize** and enter `Token <your token>`.
 
 The database starts empty. Its data is stored in a Docker volume on your own machine.
