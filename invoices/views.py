@@ -25,12 +25,12 @@ from decimal import Decimal
 @extend_schema_view(
     list=extend_schema(summary="List all customers", tags=["Customers"]),
     create=extend_schema(summary="Create a new customer", tags=["Customers"]),
-    retrieve=extend_schema(summary="Retrieve an customer", tags=["Customers"]),
+    retrieve=extend_schema(summary="Retrieve a customer", tags=["Customers"]),
     update=extend_schema(summary="Update a customer", tags=["Customers"]),
     partial_update=extend_schema(
         summary="Partially update a customer", tags=["Customers"]
     ),
-    destroy=extend_schema(summary="Deleta a customer", tags=["Customers"]),
+    destroy=extend_schema(summary="Delete a customer", tags=["Customers"]),
 )
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
@@ -50,11 +50,11 @@ class CustomerViewSet(viewsets.ModelViewSet):
     list=extend_schema(summary="List all invoices", tags=["Invoices"]),
     create=extend_schema(summary="Create a new invoice", tags=["Invoices"]),
     retrieve=extend_schema(summary="Retrieve an invoice", tags=["Invoices"]),
-    update=extend_schema(summary="Update a invoice", tags=["Invoices"]),
+    update=extend_schema(summary="Update an invoice", tags=["Invoices"]),
     partial_update=extend_schema(
-        summary="Partially update a invoice", tags=["Invoices"]
+        summary="Partially update an invoice", tags=["Invoices"]
     ),
-    destroy=extend_schema(summary="Deleta a invoice", tags=["Invoices"]),
+    destroy=extend_schema(summary="Deleta an invoice", tags=["Invoices"]),
 )
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
