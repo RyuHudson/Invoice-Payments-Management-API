@@ -7,6 +7,7 @@ During my time at my previous employer, through the daily exposure to SalesForce
 ## Live Demo
 - API docs (Swagger): https://invoice-api-j4pa.onrender.com/api/docs/
 - Demo login: `demo` / `demo12345` (get a token via `POST /api/token-auth/`, then click **Authorize** in Swagger and enter `Token <your-token>`)
+- Demo Token: `Token ab30f8d6321d36ef8282e01461dacf419555523e`
 
 > Hosted on Render's free tier: the first request after a period of inactivity can take about a minute while the service wakes up.
 
